@@ -14,7 +14,7 @@ Initialize a new project for your Azure Functions:
 func init --docker
 ```
 
-Update the Dockerfile with the following contents:
+Replace the Dockerfile with the following contents:
 
 ```
 FROM estruyf/azure-function-node-puppeteer
@@ -26,25 +26,39 @@ COPY . /home/site/wwwroot
 
 Once you create a new Azure Function, you can use it like this sample:
 
-```
+```js
 const puppeteer = require('puppeteer');
 
 module.exports = async (context, req) => {    
-    const browser = await puppeteer.launch({
-        args: [
-            '--no-sandbox',
-            '--disable-setuid-sandbox'
-        ]
-    });
+        let path = undefined;
+        if (req.query.path || (req.body && req.body.path)) {
+            path = req.query.path || req.body.path
+        }
+        path = path.replace("'", "").replace('"', "")|| 'https://www.eliostruyf.com';
 
-    const page = await browser.newPage();
-    await page.goto('https://www.eliostruyf.com');
-    const pageTitle = await page.title();
-    await browser.close();
+        const browser = await puppeteer.launch({
+            args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox'
+            ]
+        });
+    
+        const page = await browser.newPage();
 
-    context.res = {
-        // status: 200, /* Defaults to 200 */
-        body: `Page title: ${pageTitle}`
-    };
+        //If you pager takes a long time to load
+        // await page.goto(path, {
+        //     timeout: 3000000
+        // });
+    
+        const html = await page.content();
+        await page.close();
+    
+        // const pageTitle = await page.title();
+        await browser.close();
+    
+        context.res = {
+            // status: 200, /* Defaults to 200 */
+            body: html
+        };
 };
 ```
