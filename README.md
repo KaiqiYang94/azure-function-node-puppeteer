@@ -62,3 +62,5 @@ module.exports = async (context, req) => {
         };
 };
 ```
+
+Follow [this](https://docs.microsoft.com/en-us/azure/azure-functions/functions-create-function-linux-custom-image) tutorial for a detailed guide.
